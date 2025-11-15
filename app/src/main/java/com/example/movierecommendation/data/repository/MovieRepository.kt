@@ -9,7 +9,7 @@ import com.example.movierecommendation.data.local.entity.MovieEntity
 import com.example.movierecommendation.data.local.entity.MovieGenreCrossRef
 import com.example.movierecommendation.data.local.entity.MovieWithGenres
 import com.example.movierecommendation.data.remote.api.TmdbApi
-import com.example.movierecommendation.data.remote.dto.toEntity
+import com.example.movierecommendation.data.mapper.toEntity
 import com.example.movierecommendation.data.remote.util.NetworkResult
 import com.example.movierecommendation.data.remote.util.safeApi
 import kotlinx.coroutines.flow.Flow
@@ -28,13 +28,16 @@ class MovieRepository @Inject constructor(
     fun byGenre(genreId: Int): Flow<List<MovieEntity>> = movieDao.observeByGenre(genreId)
     fun getWatchlist(): Flow<List<MovieWithGenres>> = movieDao.watchlist()
 
-    suspend fun refreshPopular(apiKey: String): NetworkResult<Unit> =
-        safeApi { api.getPopularMovies(apiKey) }.let { result ->
+    // no apiKey here
+    suspend fun refreshPopular(): NetworkResult<Unit> =
+        safeApi { api.getPopularMovies() }.let { result ->
             when (result) {
                 is NetworkResult.Success -> {
                     val now = System.currentTimeMillis()
                     val movies = result.data.results.map { it.toEntity(now) }
-                    val refs = result.data.results.flatMap { dto -> movieGenreRefs(dto.id, dto.genre_ids) }
+                    val refs = result.data.results.flatMap { dto ->
+                        movieGenreRefs(dto.id, dto.genre_ids)
+                    }
                     db.withTransaction {
                         movieDao.upsertMovies(movies)
                         genreDao.upsertCrossRefs(refs)
@@ -45,13 +48,15 @@ class MovieRepository @Inject constructor(
             }
         }
 
-    suspend fun refreshUpcoming(apiKey: String): NetworkResult<Unit> =
-        safeApi { api.getUpcomingMovies(apiKey) }.let { result ->
+    suspend fun refreshUpcoming(): NetworkResult<Unit> =
+        safeApi { api.getUpcomingMovies() }.let { result ->
             when (result) {
                 is NetworkResult.Success -> {
                     val now = System.currentTimeMillis()
                     val movies = result.data.results.map { it.toEntity(now) }
-                    val refs = result.data.results.flatMap { dto -> movieGenreRefs(dto.id, dto.genre_ids) }
+                    val refs = result.data.results.flatMap { dto ->
+                        movieGenreRefs(dto.id, dto.genre_ids)
+                    }
                     db.withTransaction {
                         movieDao.upsertMovies(movies)
                         genreDao.upsertCrossRefs(refs)
@@ -62,12 +67,19 @@ class MovieRepository @Inject constructor(
             }
         }
 
-    suspend fun refreshGenres(apiKey: String): NetworkResult<Unit> =
-        safeApi { api.getGenres(apiKey) }.let { result ->
+    suspend fun refreshGenres(): NetworkResult<Unit> =
+        safeApi { api.getGenres() }.let { result ->
             when (result) {
                 is NetworkResult.Success -> {
                     db.withTransaction {
-                        genreDao.upsertGenres(result.data.genres.map { GenreEntity(it.id, it.name) })
+                        genreDao.upsertGenres(
+                            result.data.genres.map {
+                                GenreEntity(
+                                    id = it.id,
+                                    name = it.name ?: "Unknown"
+                                )
+                            }
+                        )
                     }
                     NetworkResult.Success(Unit)
                 }
@@ -75,13 +87,15 @@ class MovieRepository @Inject constructor(
             }
         }
 
-    suspend fun refreshByGenre(apiKey: String, genreId: Int): NetworkResult<Unit> =
-        safeApi { api.getMoviesByGenre(genreId, apiKey) }.let { result ->
+    suspend fun refreshByGenre(genreId: Int): NetworkResult<Unit> =
+        safeApi { api.getMoviesByGenre(genreId) }.let { result ->
             when (result) {
                 is NetworkResult.Success -> {
                     val now = System.currentTimeMillis()
                     val movies = result.data.results.map { it.toEntity(now) }
-                    val refs = result.data.results.flatMap { dto -> movieGenreRefs(dto.id, dto.genre_ids) }
+                    val refs = result.data.results.flatMap { dto ->
+                        movieGenreRefs(dto.id, dto.genre_ids)
+                    }
                     db.withTransaction {
                         movieDao.upsertMovies(movies)
                         genreDao.upsertCrossRefs(refs)

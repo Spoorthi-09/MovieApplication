@@ -7,17 +7,14 @@ import retrofit2.http.Query
 
 interface TmdbApi {
     @GET("movie/popular")
-    suspend fun getPopularMovies(@Query("api_key") key: String): MovieResponse
+    suspend fun getPopularMovies(): MovieResponse
 
     @GET("movie/upcoming")
-    suspend fun getUpcomingMovies(@Query("api_key") key: String): MovieResponse
+    suspend fun getUpcomingMovies(): MovieResponse
 
     @GET("genre/movie/list")
-    suspend fun getGenres(@Query("api_key") key: String): GenreResponse
+    suspend fun getGenres(): GenreResponse
 
     @GET("discover/movie")
-    suspend fun getMoviesByGenre(
-        @Query("with_genres") genreId: Int,
-        @Query("api_key") key: String
-    ): MovieResponse
+    suspend fun getMoviesByGenre(@Query("with_genres") genreId: Int): MovieResponse
 }
