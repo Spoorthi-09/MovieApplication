@@ -19,6 +19,10 @@ interface MovieDao {
     @Transaction
     suspend fun movie(id: Long): MovieWithGenres?
 
+    @Query("SELECT * FROM movies WHERE id = :id")
+    @Transaction
+    fun observeMovie(id: Long): Flow<MovieWithGenres?>
+
     @Query("UPDATE movies SET isWatchlisted = :watch WHERE id = :id")
     suspend fun setWatchlist(id: Long, watch: Boolean)
 

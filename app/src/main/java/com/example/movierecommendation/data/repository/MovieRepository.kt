@@ -8,8 +8,8 @@ import com.example.movierecommendation.data.local.entity.GenreEntity
 import com.example.movierecommendation.data.local.entity.MovieEntity
 import com.example.movierecommendation.data.local.entity.MovieGenreCrossRef
 import com.example.movierecommendation.data.local.entity.MovieWithGenres
-import com.example.movierecommendation.data.remote.api.TmdbApi
 import com.example.movierecommendation.data.mapper.toEntity
+import com.example.movierecommendation.data.remote.api.TmdbApi
 import com.example.movierecommendation.data.remote.util.NetworkResult
 import com.example.movierecommendation.data.remote.util.safeApi
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +28,8 @@ class MovieRepository @Inject constructor(
     fun byGenre(genreId: Int): Flow<List<MovieEntity>> = movieDao.observeByGenre(genreId)
     fun getWatchlist(): Flow<List<MovieWithGenres>> = movieDao.watchlist()
 
+    fun observeMovie(id: Long): Flow<MovieWithGenres?> =
+        movieDao.observeMovie(id)
     // no apiKey here
     suspend fun refreshPopular(): NetworkResult<Unit> =
         safeApi { api.getPopularMovies() }.let { result ->
