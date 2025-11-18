@@ -2,9 +2,10 @@ package com.example.movierecommendation.ui.popularMovies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movierecommendation.data.local.entity.MovieEntity
 import com.example.movierecommendation.data.remote.util.NetworkResult
 import com.example.movierecommendation.data.repository.MovieRepository
+import com.example.movierecommendation.ui.model.MovieUiModel
+import com.example.movierecommendation.ui.util.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +18,8 @@ import javax.inject.Inject
 
 data class PopularMoviesUiState(
     val isLoading: Boolean = false,
-    val popular: List<MovieEntity> = emptyList(),
-    val upcoming: List<MovieEntity> = emptyList(),
+    val popular: List<MovieUiModel> = emptyList(),
+    val upcoming: List<MovieUiModel> = emptyList(),
     val errorMessage: String? = null
 )
 
@@ -42,11 +43,11 @@ class PopularMoviesViewModel @Inject constructor(
             combine(
                 repository.popular(),
                 repository.upcoming(todayIso)
-            ) { popular, upcoming ->
+            ) { popularEntities, upcomingEntities ->
                 PopularMoviesUiState(
                     isLoading = false,
-                    popular = popular,
-                    upcoming = upcoming,
+                    popular = popularEntities.map { it.toUiModel() },
+                    upcoming = upcomingEntities.map { it.toUiModel() },
                     errorMessage = null
                 )
             }.collect { state ->
@@ -61,8 +62,9 @@ class PopularMoviesViewModel @Inject constructor(
 
             val popularResult = repository.refreshPopular()
             val upcomingResult = repository.refreshUpcoming()
+            val genresResult = repository.refreshGenres()
 
-            val error = listOf(popularResult, upcomingResult)
+            val error = listOf(popularResult, upcomingResult, genresResult)
                 .filterIsInstance<NetworkResult.Error>()
                 .firstOrNull()
 

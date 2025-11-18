@@ -27,10 +27,10 @@ class MovieRepository @Inject constructor(
     fun upcoming(todayIso: String): Flow<List<MovieEntity>> = movieDao.observeUpcoming(todayIso)
     fun byGenre(genreId: Int): Flow<List<MovieEntity>> = movieDao.observeByGenre(genreId)
     fun getWatchlist(): Flow<List<MovieWithGenres>> = movieDao.watchlist()
+    fun genres(): Flow<List<GenreEntity>> = genreDao.observeGenres()
 
     fun observeMovie(id: Long): Flow<MovieWithGenres?> =
         movieDao.observeMovie(id)
-    // no apiKey here
     suspend fun refreshPopular(): NetworkResult<Unit> =
         safeApi { api.getPopularMovies() }.let { result ->
             when (result) {

@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
@@ -33,14 +32,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.movierecommendation.data.local.entity.MovieEntity
+import com.example.movierecommendation.ui.model.MovieUiModel
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun MovieCard(
-    movie: MovieEntity,
+    movie: MovieUiModel,
     onMovieClicked: () -> Unit,
-    onWatchlistClicked: ((MovieEntity) -> Unit)? = null,
+    onWatchlistClicked: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -91,7 +90,7 @@ fun MovieCard(
                     )
 
                     if (onWatchlistClicked != null) {
-                        IconButton(onClick = { onWatchlistClicked(movie) }) {
+                        IconButton(onClick = { onWatchlistClicked() }) {
                             Icon(
                                 imageVector = if (movie.isWatchlisted)
                                     Icons.Default.Favorite
@@ -146,25 +145,6 @@ fun MovieCard(
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
-
-                // "Details" row
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Details",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = null, // Decorative
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
             }
         }
     }

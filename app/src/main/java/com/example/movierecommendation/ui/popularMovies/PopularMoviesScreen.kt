@@ -24,8 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.movierecommendation.data.local.entity.MovieEntity
 import com.example.movierecommendation.ui.components.MovieCard
+import com.example.movierecommendation.ui.model.MovieUiModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,10 +64,11 @@ fun PopularMoviesScreen(
 
                 else -> {
                     PopularMoviesContent(
-                        state = uiState,
+                        popular = uiState.popular,
+                        upcoming = uiState.upcoming,
                         onMovieClicked = onMovieClicked,
-                        onWatchlistClicked = { movie ->
-                            viewModel.toggleWatchlist(movie.id, !movie.isWatchlisted)
+                        onWatchlistClicked = { id, newValue ->
+                            viewModel.toggleWatchlist(id, newValue)
                         }
                     )
                 }
@@ -89,36 +90,41 @@ fun PopularMoviesScreen(
 
 @Composable
 private fun PopularMoviesContent(
-    state: PopularMoviesUiState,
+    popular: List<MovieUiModel>,
+    upcoming: List<MovieUiModel>,
     onMovieClicked: (Long) -> Unit,
-    onWatchlistClicked: (MovieEntity) -> Unit
+    onWatchlistClicked: (movieId: Long, newValue: Boolean) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (state.popular.isNotEmpty()) {
+        if (popular.isNotEmpty()) {
             item { SectionHeader("Popular movies") }
-            items(state.popular, key = { it.id }) { movie ->
+            items(popular, key = { it.id }) { movie ->
                 MovieCard(
                     movie = movie,
                     onMovieClicked = { onMovieClicked(movie.id) },
-                    onWatchlistClicked = { onWatchlistClicked(movie) }
+                    onWatchlistClicked = {
+                        onWatchlistClicked(movie.id, !movie.isWatchlisted)
+                    }
                 )
             }
         }
 
-        if (state.upcoming.isNotEmpty()) {
+        if (upcoming.isNotEmpty()) {
             item {
                 Spacer(Modifier.height(16.dp))
                 SectionHeader("Upcoming movies")
             }
-            items(state.upcoming, key = { it.id }) { movie ->
+            items(upcoming, key = { it.id }) { movie ->
                 MovieCard(
                     movie = movie,
                     onMovieClicked = { onMovieClicked(movie.id) },
-                    onWatchlistClicked = { onWatchlistClicked(movie) }
+                    onWatchlistClicked = {
+                        onWatchlistClicked(movie.id, !movie.isWatchlisted)
+                    }
                 )
             }
         }
@@ -126,6 +132,7 @@ private fun PopularMoviesContent(
         item { Spacer(Modifier.height(8.dp)) }
     }
 }
+
 
 
 @Composable

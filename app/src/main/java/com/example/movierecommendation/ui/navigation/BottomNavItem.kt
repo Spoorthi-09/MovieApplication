@@ -16,3 +16,4 @@ sealed class BottomNavItem(
     object Search : BottomNavItem("search", Icons.Default.Search, "Search")
     object Watchlist : BottomNavItem("watchlist", Icons.Default.Star, "Watchlist")
 }
+
