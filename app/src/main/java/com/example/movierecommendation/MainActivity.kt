@@ -14,7 +14,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MovieRecommendationTheme {
+            MovieRecommendationTheme(
+                darkTheme = true,      // force dark
+                dynamicColor = false
+            ) {
                 MainScreen()
             }
         }

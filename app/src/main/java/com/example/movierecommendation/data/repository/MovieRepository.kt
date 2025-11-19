@@ -29,6 +29,8 @@ class MovieRepository @Inject constructor(
     fun getWatchlist(): Flow<List<MovieWithGenres>> = movieDao.watchlist()
     fun genres(): Flow<List<GenreEntity>> = genreDao.observeGenres()
 
+    fun searchMovies(query: String): Flow<List<MovieWithGenres>> =
+        movieDao.searchMovies(query)
     fun observeMovie(id: Long): Flow<MovieWithGenres?> =
         movieDao.observeMovie(id)
     suspend fun refreshPopular(): NetworkResult<Unit> =

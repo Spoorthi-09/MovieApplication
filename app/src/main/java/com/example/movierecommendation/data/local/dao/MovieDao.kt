@@ -54,6 +54,17 @@ interface MovieDao {
         ORDER BY popularity DESC
     """)
     fun searchOffline(q: String): Flow<List<MovieEntity>>
+
+    @Query("""
+    SELECT DISTINCT m.*
+    FROM movies AS m
+    LEFT JOIN movie_genre AS mg ON m.id = mg.movieId
+    LEFT JOIN genres AS g ON g.id = mg.genreId
+    WHERE m.title LIKE '%' || :query || '%'
+       OR g.name  LIKE '%' || :query || '%'
+    ORDER BY m.popularity DESC
+""")
+    fun searchMovies(query: String): Flow<List<MovieWithGenres>>
 }
 
 
